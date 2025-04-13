@@ -33,6 +33,7 @@ class CreateTask(BaseModel):
     completed: bool
     user_id: PydanticObjectId
     category_id: Optional[list[PydanticObjectId]] = []
+    parent_task_id: Optional[PydanticObjectId] = None
 
     class Config:
         schema_extra = {
@@ -55,6 +56,7 @@ class Task(BaseModel):
     completed: bool
     user_id: PydanticObjectId # requires the pydanticObjectId Validator
     category_id: Optional[list[PydanticObjectId]] = []
+    parent_task_id: Optional[PydanticObjectId] = None
 
 
 
