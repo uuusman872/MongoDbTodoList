@@ -24,7 +24,12 @@ class User(BaseModel):
     email: EmailStr
     full_name: Optional[str] = None
     created_at: datetime
+    updated_at: datetime
 
     class Config:
         orm_mode = True
-        
+
+
+class UpdateUser(BaseModel):
+    email: Optional[EmailStr]
+    full_name: Optional[str]
