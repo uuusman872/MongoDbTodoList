@@ -3,13 +3,21 @@ from models.task import CreateTask, Task
 from database.mongodb import task_collection
 from helpers.task_helpers import task_helper
 from bson import ObjectId
+from validators.user_validator import validate_user_id
+from validators.category_validator import validate_category_id
+from fastapi import HTTPException, status
 
 router = APIRouter()
-
-
 @router.post("/tasks", response_model=CreateTask)
 async def create_task(task: CreateTask):
-    new_task = await task_collection.insert_one(task.dict())
+    tasks_data = task.dict()
+    try:
+        await validate_user_id(tasks_data.get("user_id"))
+        for category_id in tasks_data.get("category_id"):
+            await validate_category_id(category_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    new_task = await task_collection.insert_one(tasks_data)
     created_task = await task_collection.find_one({"_id": new_task.inserted_id})
     return created_task
 
