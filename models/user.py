@@ -20,6 +20,7 @@ class UserCreate(BaseModel):
         }
 
 class User(BaseModel):
+    id: str
     username: str
     email: EmailStr
     full_name: Optional[str] = None

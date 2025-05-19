@@ -6,6 +6,8 @@ from bson import ObjectId
 from validators.user_validator import validate_user_id
 from validators.category_validator import validate_category_id
 from fastapi import HTTPException, status
+from typing import List
+from fastapi import Query
 
 router = APIRouter()
 @router.post("/tasks", response_model=CreateTask)
@@ -73,9 +75,24 @@ async def delete_task(task_id: str):
     return {"message": f"task {task_id} has been deleted"}
 
 
+@router.get("/task_filter_tags")
+async def task_stats(filter_tag: List[str] = Query(...), offset: int=0, limit: int=10):
+    print("filters are ", filter_tag)
+    cursor = task_collection.aggregate([
+        {"$match": {"tags": {"$in": filter_tag}}},
+        {"$skip": offset},
+        {"$limit": limit}
+    ])
+    
+    total_count = await task_collection.count_documents({"tags": {"$in": filter_tag}})
 
-# @router.get("/task_stats/{task_id}")
-# async def task_stats(task_id):
-#     task_collection.aggregate({
-
-#     })
+    tasks = []
+    async for task in cursor:
+        tasks.append(task_helper(task))
+    
+    return {
+        "message": f"Found {len(tasks)} tasks with given tags.",
+        "data": tasks,
+        "status": status.HTTP_200_OK,
+        "total": total_count,
+    }

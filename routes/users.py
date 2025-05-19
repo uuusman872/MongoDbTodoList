@@ -39,12 +39,14 @@ async def get_all_users(page_number: int = 1):
     return users
 
 
+
 @router.get("/users/{user_id}", response_model=User)
 async def get_user(user_id: str):
     user = await user_collection.find_one({"_id": ObjectId(user_id)})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user_helper(user)
+
 
 
 @router.put("/users/{user_id}", response_model=User)
@@ -55,6 +57,7 @@ async def update_user(user_id: str, user: UpdateUser):
     return user_helper(updated_user)
 
 
+
 @router.delete("/users/{user_id}", response_model=dict)
 async def delete_user(user_id: str):
     deleted_result = await user_collection.delete_one({"_id": ObjectId(user_id)})
@@ -62,3 +65,9 @@ async def delete_user(user_id: str):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="user not found")
     return {"message": f"user {user_id} has been deleted"}
 
+
+from database.mongodb import task_collection
+
+@router.get("/user/progress/{user_id}")
+async def user_task_progress(user_id: str):
+    task_collection.aggregate()

@@ -9,14 +9,14 @@ from models.pydanticObject import PydanticObjectId
 from pydantic import field_validator
 from database.mongodb import user_collection
 from bson import ObjectId
-
+from typing import Literal
 
 class CreateTask(BaseModel):
     title: str = Field(...) # required Field
     description: Optional[str]
     due_date: Optional[datetime]
     update_date: Optional[datetime]
-    prioriy: Optional[int] = 1
+    prioriy: Literal["high", "medium", "low"] = "low"
     completed: bool
     user_id: PydanticObjectId
     category_id: Optional[list[PydanticObjectId]] = []
@@ -47,10 +47,11 @@ class Task(BaseModel):
     description: Optional[str]
     due_date: Optional[datetime]
     update_date: Optional[datetime]
-    prioriy: Optional[int] = 1
+    prioriy: Literal["high", "medium", "low"] = "low"
     completed: bool
     user_id: PydanticObjectId # requires the pydanticObjectId Validator
     category_id: Optional[list[PydanticObjectId]] = []
+    tags: Optional[List[str]] = Field(default_factory=list)
     parent_task_id: Optional[PydanticObjectId] = None
 
 

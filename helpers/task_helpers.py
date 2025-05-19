@@ -8,6 +8,7 @@ def task_helper(task):
         "update_date": task["update_date"],
         "prioriy": task["prioriy"],
         "user_id": task["user_id"],
+        "tags": task["tags"],
         "category_id": task["category_id"],
         "parent_task_id": task["parent_task_id"]
     }
