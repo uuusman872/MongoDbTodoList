@@ -127,7 +127,6 @@ async def task_by_category(category_tags: str):
 
     result = []
     async for category in cursor:
-        print("res ")
         print(category)
 
     return {

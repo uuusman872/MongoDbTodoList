@@ -4,7 +4,7 @@ from database.mongodb import user_collection
 import bcrypt
 from datetime import datetime
 from bson import ObjectId
-from helpers.user_helpers import user_helper
+from helpers.user_helpers import user_helper, user_task_helper
 
 router = APIRouter()
 
@@ -66,8 +66,35 @@ async def delete_user(user_id: str):
     return {"message": f"user {user_id} has been deleted"}
 
 
-from database.mongodb import task_collection
 
-@router.get("/user/progress/{user_id}")
+@router.get("/user_tasks/{user_id}")
 async def user_task_progress(user_id: str):
-    task_collection.aggregate()
+    cursor = user_collection.aggregate([
+            {
+                "$match": { "_id": ObjectId(user_id) }
+            },
+            {
+                "$addFields": {
+                    "_id": { "$toString": "$_id" }
+                }
+            },
+            {
+                "$lookup": {
+                    "from": "tasks",
+                    "localField": "_id",
+                    "foreignField": "user_id",
+                    "as": "tasks_list"
+                }
+            }
+        ])
+    
+    users_tasks = []
+    
+    async for user in cursor:
+        users_tasks.append(user_task_helper(user))
+    
+    return {
+        "message": "", 
+        "status": status.HTTP_200_OK,
+        "data": users_tasks
+    }
