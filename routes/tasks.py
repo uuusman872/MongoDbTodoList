@@ -96,3 +96,42 @@ async def task_stats(filter_tag: List[str] = Query(...), offset: int=0, limit: i
         "status": status.HTTP_200_OK,
         "total": total_count,
     }
+
+
+@router.get("/task_by_category")
+async def task_by_category(category_tags: str):
+    
+    cursor = task_collection.aggregate([
+        {
+            "$lookup": {
+                "from": "category",
+                "let": {"task_categories": "$category_id"},
+                "pipeline": [
+                    {
+                        "$match": {
+                            "$expr": {
+                                "$in": ["$_id", "$$task_categories"]
+                            }
+                        }
+                    }
+                ],
+                "as": "matched_categories"
+            }
+        },
+        {
+            "$match": {
+                "matched_categories.category_type": category_tags
+            }
+        }
+    ])
+
+    result = []
+    async for category in cursor:
+        print("res ")
+        print(category)
+
+    return {
+        "message": "",
+        "data": result,
+        "status": status.HTTP_200_OK
+    }
